@@ -9,6 +9,7 @@ const logger = require("morgan");
 const connectMongoDB = require("./loaders/db");
 
 const indexRouter = require("./routes/index");
+const authRouter = require("./routes/auth");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/", indexRouter);
+app.use("/auth", authRouter);
 
 app.use((req, res, next) => {
   next(createError(404));
