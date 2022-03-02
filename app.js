@@ -10,6 +10,7 @@ const connectMongoDB = require("./loaders/db");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
+const diaryRouter = require("./routes/diary");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(cookieParser());
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use("/diaries", diaryRouter);
 
 app.use((req, res, next) => {
   next(createError(404));
