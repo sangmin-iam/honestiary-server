@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 
 const { User } = require("../models/User");
+const { RESPONSE } = require("../constants");
 
 exports.handleLogin = async (req, res, next) => {
   try {
@@ -23,7 +24,7 @@ exports.handleLogin = async (req, res, next) => {
     );
 
     res.status(200).json({
-      result: "success",
+      result: RESPONSE.SUCCESS,
       data: {
         user: {
           _id: user._id,

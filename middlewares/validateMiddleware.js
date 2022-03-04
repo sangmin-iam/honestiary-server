@@ -1,4 +1,5 @@
 const createError = require("http-errors");
+const { RESPONSE } = require("../constants");
 
 module.exports = (validator) => {
   return (req, res, next) => {
@@ -7,7 +8,7 @@ module.exports = (validator) => {
     if (error) {
       return next(
         createError.BadRequest({
-          result: "failed",
+          result: RESPONSE.FAIL,
           message: error.details[0].message,
         })
       );

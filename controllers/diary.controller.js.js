@@ -4,7 +4,7 @@ const Sentiment = require("sentiment");
 
 const Diary = require("../models/Diary");
 const { User } = require("../models/User");
-
+const { RESPONSE } = require("../constants");
 const sentiment = new Sentiment();
 
 exports.createDiary = async (req, res, next) => {
@@ -28,42 +28,8 @@ exports.createDiary = async (req, res, next) => {
     await Diary.create(newDiary);
 
     res.json({
-      result: "success",
+      result: RESPONSE.SUCCESS,
       data: null,
-    });
-  } catch (err) {
-    next(createError(err));
-  }
-};
-
-exports.getPaginatedDiaries = async (req, res, next) => {
-  try {
-    let query = Diary.find();
-
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.limit) || 9;
-    const skip = (page - 1) * pageSize;
-    const total = await Diary.countDocuments();
-
-    const pages = Math.ceil(total / pageSize);
-
-    query = query.skip(skip).limit(pageSize);
-
-    if (page > pages) {
-      next();
-      return;
-    }
-
-    const result = await query;
-
-    res.status(200).json({
-      result: "success",
-      data: {
-        page,
-        pages,
-        diaries: result,
-        count: result.length,
-      },
     });
   } catch (err) {
     next(createError(err));
@@ -72,7 +38,7 @@ exports.getPaginatedDiaries = async (req, res, next) => {
 
 exports.getDiaries = async (req, res, next) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, page, limit = 9 } = req.query;
 
     const monthGap = differenceInMonths(new Date(endDate), new Date(startDate));
 
@@ -84,16 +50,56 @@ exports.getDiaries = async (req, res, next) => {
     const { email } = req.user;
     const { _id: userId } = await User.findOne({ email }).select("_id").lean();
 
+    if (page && limit) {
+      const total = await Diary.find({
+        createdBy: userId,
+        $and: [
+          { createdAt: { $gte: startDate } },
+          { createdAt: { $lte: endDate } },
+        ],
+      }).countDocuments();
+
+      const diaries = await Diary.find({
+        createdBy: userId,
+        $and: [
+          { createdAt: { $gte: startDate } },
+          { createdAt: { $lte: endDate } },
+        ],
+      })
+        .skip((page - 1) * parseInt(limit))
+        .limit(parseInt(limit))
+        .lean();
+
+      const pages = Math.ceil(total / limit);
+
+      if (page > pages && pages) {
+        next();
+        return;
+      }
+
+      res.status(200).json({
+        result: RESPONSE.SUCCESS,
+        data: {
+          page,
+          pages,
+          diaries,
+          count: total,
+        },
+      });
+
+      return;
+    }
+
     const diaries = await Diary.find({
       createdBy: userId,
       $and: [
         { createdAt: { $gte: startDate } },
         { createdAt: { $lte: endDate } },
       ],
-    });
+    }).lean();
 
     res.json({
-      result: "success",
+      result: RESPONSE.SUCCESS,
       data: {
         diaries,
       },
