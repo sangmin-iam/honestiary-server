@@ -7,6 +7,7 @@ const cors = require("cors");
 const logger = require("morgan");
 
 const connectMongoDB = require("./loaders/db");
+const { RESPONSE } = require("./constants");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
@@ -40,7 +41,7 @@ app.use((err, req, res, next) => {
 
   if (req.app.get("env") === "development") {
     res.json({
-      result: err.result || "error",
+      result: err.result || RESPONSE.ERROR,
       message: err.message,
       stack: err.stack,
     });
@@ -53,7 +54,7 @@ app.use((err, req, res, next) => {
   }
 
   res.json({
-    result: err.result || "error",
+    result: err.result || RESPONSE.ERROR,
     message: err.message,
   });
 });
