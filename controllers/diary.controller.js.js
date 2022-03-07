@@ -1,10 +1,12 @@
+const mongoose = require("mongoose");
 const createError = require("http-errors");
 const differenceInMonths = require("date-fns/differenceInMonths");
 const Sentiment = require("sentiment");
+const { lightFormat, addDays } = require("date-fns");
 
 const Diary = require("../models/Diary");
 const { User } = require("../models/User");
-const { RESPONSE } = require("../constants");
+const { RESPONSE, DATE_FORMAT } = require("../constants");
 const sentiment = new Sentiment();
 
 exports.createDiary = async (req, res, next) => {
@@ -39,6 +41,10 @@ exports.createDiary = async (req, res, next) => {
 exports.getDiaries = async (req, res, next) => {
   try {
     const { startDate, endDate, page, limit = 9 } = req.query;
+    const endDatePlusOneDay = lightFormat(
+      addDays(new Date(endDate), 1),
+      DATE_FORMAT.YYYY_MM_DD
+    );
 
     const monthGap = differenceInMonths(new Date(endDate), new Date(startDate));
 
@@ -55,7 +61,7 @@ exports.getDiaries = async (req, res, next) => {
         createdBy: userId,
         $and: [
           { createdAt: { $gte: startDate } },
-          { createdAt: { $lte: endDate } },
+          { createdAt: { $lte: endDatePlusOneDay } },
         ],
       }).countDocuments();
 
@@ -63,7 +69,7 @@ exports.getDiaries = async (req, res, next) => {
         createdBy: userId,
         $and: [
           { createdAt: { $gte: startDate } },
-          { createdAt: { $lte: endDate } },
+          { createdAt: { $lte: endDatePlusOneDay } },
         ],
       })
         .skip((page - 1) * parseInt(limit))
@@ -94,7 +100,7 @@ exports.getDiaries = async (req, res, next) => {
       createdBy: userId,
       $and: [
         { createdAt: { $gte: startDate } },
-        { createdAt: { $lte: endDate } },
+        { createdAt: { $lte: endDatePlusOneDay } },
       ],
     }).lean();
 
@@ -102,6 +108,38 @@ exports.getDiaries = async (req, res, next) => {
       result: RESPONSE.SUCCESS,
       data: {
         diaries,
+      },
+    });
+  } catch (err) {
+    next(createError(err));
+  }
+};
+
+exports.getDiary = async (req, res, next) => {
+  try {
+    const { diary_id } = req.params;
+    const { email } = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(diary_id)) {
+      next(createError.BadRequest());
+      return;
+    }
+
+    const { _id: userId } = await User.findOne({ email }).select("_id").lean();
+    const diary = await Diary.findOne({
+      _id: diary_id,
+      createdBy: userId,
+    }).lean();
+
+    if (!diary) {
+      next();
+      return;
+    }
+
+    res.json({
+      result: RESPONSE.SUCCESS,
+      data: {
+        diary,
       },
     });
   } catch (err) {
