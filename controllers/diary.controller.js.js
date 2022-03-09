@@ -6,7 +6,7 @@ const { lightFormat, addDays } = require("date-fns");
 
 const Diary = require("../models/Diary");
 const { User } = require("../models/User");
-const { RESPONSE, DATE_FORMAT, DIARY_SENTIMENT } = require("../constants");
+const { RESPONSE, DATE_FORMAT } = require("../constants");
 const sentiment = new Sentiment();
 
 exports.createDiary = async (req, res, next) => {
@@ -40,7 +40,7 @@ exports.createDiary = async (req, res, next) => {
 
 exports.getDiaries = async (req, res, next) => {
   try {
-    const { startDate, endDate, page, limit = 9, sentiment } = req.query;
+    const { startDate, endDate, page, limit = 9 } = req.query;
     const endDatePlusOneDay = lightFormat(
       addDays(new Date(endDate), 1),
       DATE_FORMAT.YYYY_MM_DD
@@ -56,27 +56,22 @@ exports.getDiaries = async (req, res, next) => {
     const { email } = req.user;
     const { _id: userId } = await User.findOne({ email }).select("_id").lean();
 
-    const options = {
-      createdBy: userId,
-      $and: [
-        { createdAt: { $gte: startDate } },
-        { createdAt: { $lte: endDatePlusOneDay } },
-      ],
-    };
-
-    switch (sentiment) {
-      case DIARY_SENTIMENT.POSITIVE:
-        options.sentiment = { $gte: 0 };
-        break;
-      case DIARY_SENTIMENT.NEGATIVE:
-        options.sentiment = { $lt: 0 };
-        break;
-    }
-
     if (page && limit) {
-      const total = await Diary.find(options).countDocuments();
+      const total = await Diary.find({
+        createdBy: userId,
+        $and: [
+          { createdAt: { $gte: startDate } },
+          { createdAt: { $lte: endDatePlusOneDay } },
+        ],
+      }).countDocuments();
 
-      const diaries = await Diary.find(options)
+      const diaries = await Diary.find({
+        createdBy: userId,
+        $and: [
+          { createdAt: { $gte: startDate } },
+          { createdAt: { $lte: endDatePlusOneDay } },
+        ],
+      })
         .skip((page - 1) * parseInt(limit))
         .limit(parseInt(limit))
         .lean();
@@ -101,7 +96,13 @@ exports.getDiaries = async (req, res, next) => {
       return;
     }
 
-    const diaries = await Diary.find(options).lean();
+    const diaries = await Diary.find({
+      createdBy: userId,
+      $and: [
+        { createdAt: { $gte: startDate } },
+        { createdAt: { $lte: endDatePlusOneDay } },
+      ],
+    }).lean();
 
     res.json({
       result: RESPONSE.SUCCESS,
