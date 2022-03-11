@@ -145,3 +145,15 @@ exports.getDiary = async (req, res, next) => {
     next(createError(err));
   }
 };
+
+exports.deleteDiary = async (req, res, next) => {
+  try {
+    const { diary_id } = req.params;
+
+    await Diary.findByIdAndDelete(diary_id);
+
+    res.status(204).json({ result: RESPONSE.SUCCESS, data: null });
+  } catch (err) {
+    next(createError(err));
+  }
+};
