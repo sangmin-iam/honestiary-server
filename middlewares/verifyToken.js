@@ -5,7 +5,7 @@ exports.verifyToken = (req, res, next) => {
   const accessToken = req.headers.authorization.split(" ")[1];
 
   if (!accessToken) {
-    next(createError.Unauthorized("You need to login first."));
+    next(createError.Unauthorized("You need to login first"));
     return;
   }
 
@@ -13,10 +13,10 @@ exports.verifyToken = (req, res, next) => {
     if (err) {
       switch (err.name) {
         case "JsonWebTokenError":
-          next(createError.Unauthorized("Your token is not verified."));
+          next(createError.Unauthorized("Your token is not verified"));
           return;
         case "TokenExpiredError":
-          next(createError.Unauthorized("Your token has expired."));
+          next(createError.Unauthorized("Your token has expired"));
           return;
         default:
           next(createError.Unauthorized("Invalid Token"));

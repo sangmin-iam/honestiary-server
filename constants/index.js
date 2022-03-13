@@ -12,3 +12,11 @@ exports.DIARY_SENTIMENT = {
 exports.DATE_FORMAT = {
   YYYY_MM_DD: "yyyy-MM-dd",
 };
+
+exports.JWT_TOKEN = {
+  EXPIRES_IN: "1day",
+};
+
+exports.DIARY = {
+  DEFAULT_SCRIPT: "No Script",
+};

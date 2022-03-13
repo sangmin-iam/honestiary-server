@@ -5,7 +5,7 @@ const diarySchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     index: true,
   },
-  audio: {
+  audioURL: {
     type: String,
     required: true,
   },

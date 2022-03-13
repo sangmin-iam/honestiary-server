@@ -3,7 +3,6 @@ const multer = require("multer");
 const multerS3 = require("multer-s3");
 const aws = require("aws-sdk");
 const Diary = require("../models/Diary");
-const { create } = require("../models/Diary");
 
 const s3 = new aws.S3({
   accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
@@ -15,7 +14,7 @@ exports.uploadS3 = multer({
   storage: multerS3({
     s3,
     bucket: process.env.AWS_S3_BUCKET_NAME,
-    acl: "public-read",
+    acl: process.env.AWS_S3_ACL,
     key: function (req, file, cb) {
       cb(null, Date.now().toString());
     },
@@ -27,7 +26,7 @@ exports.deleteDiaryS3 = async (req, res, next) => {
     const { diary_id } = req.params;
 
     const diary = await Diary.findById(diary_id).lean();
-    const url = diary.audio.split("/");
+    const url = diary.audioURL.split("/");
     const fileName = url[url.length - 1];
 
     const params = {
