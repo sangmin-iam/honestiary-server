@@ -1,3 +1,5 @@
+const { RESPONSE } = require("../constants");
+
 exports.handleIndex = (req, res, next) => {
-  res.json({ result: "success", data: null });
+  res.json({ result: RESPONSE.SUCCESS, data: null });
 };

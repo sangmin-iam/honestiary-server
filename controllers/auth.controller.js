@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
+const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/User");
-const { RESPONSE } = require("../constants");
+const { RESPONSE, JWT_TOKEN } = require("../constants");
 
 exports.handleLogin = async (req, res, next) => {
   try {
@@ -20,7 +20,7 @@ exports.handleLogin = async (req, res, next) => {
     const accessToken = jwt.sign(
       { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: JWT_TOKEN.EXPIRES_IN }
     );
 
     res.status(200).json({
