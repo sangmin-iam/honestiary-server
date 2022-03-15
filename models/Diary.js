@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { DIARY } = require("../constants");
 
 const diarySchema = new mongoose.Schema({
   createdBy: {
@@ -11,7 +12,7 @@ const diarySchema = new mongoose.Schema({
   },
   script: {
     type: String,
-    required: true,
+    default: DIARY,
   },
   sentiment: {
     type: Number,

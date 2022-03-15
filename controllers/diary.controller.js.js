@@ -6,18 +6,13 @@ const { lightFormat, addDays } = require("date-fns");
 
 const Diary = require("../models/Diary");
 const { User } = require("../models/User");
-const {
-  RESPONSE,
-  DATE_FORMAT,
-  DIARY_SENTIMENT,
-  DIARY,
-} = require("../constants");
+const { RESPONSE, DATE_FORMAT, DIARY_SENTIMENT } = require("../constants");
 const sentiment = new Sentiment();
 
 exports.createDiary = async (req, res, next) => {
   try {
     const { email } = req.user;
-    const { script = DIARY.DEFAULT_SCRIPT } = req.body;
+    const { script } = req.body;
     const audioURL = req.file.location;
 
     const sentimentResult = sentiment.analyze(script);
