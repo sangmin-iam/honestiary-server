@@ -7,6 +7,7 @@ const { lightFormat, addDays } = require("date-fns");
 const Diary = require("../models/Diary");
 const { User } = require("../models/User");
 const { RESPONSE, DATE_FORMAT, DIARY_SENTIMENT } = require("../constants");
+
 const sentiment = new Sentiment();
 
 exports.createDiary = async (req, res, next) => {
@@ -79,6 +80,9 @@ exports.getDiaries = async (req, res, next) => {
       const diaries = await Diary.find(options)
         .skip((page - 1) * parseInt(limit))
         .limit(parseInt(limit))
+        .sort({
+          createdAt: -1,
+        })
         .lean();
 
       const pages = Math.ceil(total / limit);
@@ -101,7 +105,11 @@ exports.getDiaries = async (req, res, next) => {
       return;
     }
 
-    const diaries = await Diary.find(options).lean();
+    const diaries = await Diary.find(options)
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
 
     res.json({
       result: RESPONSE.SUCCESS,
