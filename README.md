@@ -220,7 +220,3 @@ This section details key technical challenges and the decisions made to solve th
 *   **Refactoring Strategy:** I recognized that focusing solely on feature development during a short sprint (Agile methodology) led to delayed refactoring. In future projects, I will integrate **simultaneous refactoring and feature development** to ensure a consistent, high level of code quality, better Separation of Concerns, and increased code readability from the outset.
 *   **Growth:** This personal project served as a major turning point, fostering the ability to **self-learn, embrace new technologies without hesitation**, and systematically approach debugging errors.
 
-I am committed to continually striving to be a developer who delivers exceptional user experiences.
-
----
-*A grateful thank you to my mentors, peers, and the program staff who provided the tools and guidance to transition my career path.*
